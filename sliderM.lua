@@ -4,6 +4,9 @@ local sliders = {}
 
 local amplituideSlider = nil
 local frequencySlider = nil
+local splitSlider = nil
+local hueSlider = nil
+
 local ON = false
 
 function sliderM:createSlider(id, length, min, max)
@@ -14,7 +17,7 @@ function sliderM:createSlider(id, length, min, max)
         height = 10,
         min = min,
         max = max,
-        currValue = 1,
+        currValue = min,
         hovering = false,
 
         handle = {
@@ -43,6 +46,16 @@ function sliderM:load()
 
     frequencySlider.x = 350
     frequencySlider.y = 70
+
+    splitSlider = sliderM:createSlider("split",200, -5, 5)
+
+    splitSlider.x = 350
+    splitSlider.y = 110
+
+    hueSlider = sliderM:createSlider("hue",200, 0, 100)
+
+    hueSlider.x = 350
+    hueSlider.y = 150
 end
 
 local deltaTimer = 0
@@ -52,7 +65,8 @@ function sliderM:update(dt)
 
     amplitude = amplituideSlider.currValue
     frequency = frequencySlider.currValue
-    
+    split = splitSlider.currValue
+    hue = hueSlider.currValue
 
     for _,i in pairs(sliders) do
         i.handle.x = i.x + ((i.width / (i.max - i.min))*(i.currValue-i.min)) - i.handle.width/2
