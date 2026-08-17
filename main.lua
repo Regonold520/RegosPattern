@@ -1,4 +1,5 @@
 sliderM = require("sliderM")
+textBoxM = require("textBoxM")
 
 local renderable = nil
 local drawImg = nil
@@ -6,33 +7,57 @@ amplitude = 1
 frequency = 1
 split = 0.5
 hue = 0
+pot = 1
 
-local patternDim = {x=100, y = 100}
+Font = love.graphics.newFont("Pixellari.ttf", 32)
+
+
+patternDim = 300
+
+local rects = {}
+
+function addPixelRect(x, y, width, height, colour, pX)
+    local newRect = {
+        x = x,
+        y = y,
+        width = width,
+        height = height,
+        colour = colour,
+        pX = pX
+    }
+
+    table.insert(rects, newRect)
+
+    return newRect
+end
 
 function love.load()
+    Font:setFilter("nearest", "nearest")
     love.graphics.setDefaultFilter("nearest", "nearest")
+    local bgC = 0.05
+    love.graphics.setBackgroundColor(bgC,bgC,bgC)
+
+    addPixelRect(335, 23, 422, 256, {r=0.2,g=0.2,b=0.2}, 2)
 
     sliderM:load()
-    
-    renderable = love.image.newImageData(patternDim.x, patternDim.y)
-    
+    textBoxM:load()
+
     render()
 end
 
 function pixelLoop(x, y)
-    
 
     local noise = love.math.noise(x / amplitude, y / amplitude)
 
-    local wave = 
+    local wave =
         ((math.sin(x * 0.12 + noise * frequency) * split) + (math.cos(x * 0.12 + noise * frequency) * 1-split))+
-        ((math.sin(y * 0.12 + noise * frequency) * split) + (math.cos(y * 0.12 + noise * frequency) * 1-split)) + 
+        ((math.sin(y * 0.12 + noise * frequency) * split) + (math.cos(y * 0.12 + noise * frequency) * 1-split)) +
         ((math.sin((x+y) * 0.12 + noise * frequency) * split) + (math.cos((x+y) * 0.12 + noise * frequency) * 1-split))
 
     local value = (wave+3) / 6
     value = math.max(0, math.min(1, value))
 
-    value = math.floor(value * 2) / 2
+    value = math.floor(value * pot) / pot
 
     local r, g, b = hsv(hue/100, 1, value)
     return r,g,b,1
@@ -40,6 +65,7 @@ function pixelLoop(x, y)
 end
 
 function render()
+    renderable = love.image.newImageData(patternDim, patternDim)
     for x = 0, renderable:getWidth()-1 do
         for y = 0, renderable:getHeight()-1 do
             r, g, b, a = pixelLoop(x, y)
@@ -52,16 +78,36 @@ function love.update(dt)
     drawImg = love.graphics.newImage(renderable)
 
     sliderM:update(dt)
+    textBoxM:update(dt)
     render()
 end
+
 
 function love.draw(dt)
     love.graphics.setColor(1,1,1,1)
     if drawImg ~= nil then
-        love.graphics.draw(drawImg, 20, 20, 0, 3, 3)
+        love.graphics.draw(drawImg, 20, 20, 0, 3/(patternDim / 100), 3/(patternDim / 100))
     end
 
+    
+    
+
+    
+
+    for _, i in pairs(rects) do
+        love.graphics.setColor(i.colour.r,i.colour.g,i.colour.b, 1)
+        love.graphics.rectangle("fill",i.x,i.y, i.width,i.height)
+
+
+        love.graphics.rectangle("fill",i.x+(i.pX),i.y-(i.pX), i.width-(i.pX*2),(i.pX))
+        love.graphics.rectangle("fill",i.x+(i.pX),i.y-(i.pX) + i.height + (i.pX), i.width-(i.pX*2),(i.pX))
+        love.graphics.setColor(1,1,1,1)
+    end
+
+    
+
     sliderM:draw()
+    textBoxM:draw()
 end
 
 function hsv(h, s, v)

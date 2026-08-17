@@ -6,13 +6,20 @@ local amplituideSlider = nil
 local frequencySlider = nil
 local splitSlider = nil
 local hueSlider = nil
+local scaleSlider = nil
+local potSlider = nil
+
+
+
 
 local ON = false
 
-function sliderM:createSlider(id, length, min, max)
+function sliderM:createSlider(x, y, id, length, min, max, labelTxt)
+    addPixelRect(x, y, length, 10, {r=1,g=1,b=1}, 2)
+    
     local newSlider = {
-        x = 0,
-        y = 0,
+        x = x,
+        y = y,
         width = length,
         height = 10,
         min = min,
@@ -24,8 +31,16 @@ function sliderM:createSlider(id, length, min, max)
             x = 0,
             y = 0,
             width = 10,
-            height = 20
-        }
+            height = 25,
+            rect = addPixelRect(0, 0, 10, 25, {r=0.5,g=0.5,b=0.5}, 2)
+        },
+        label = nil
+    }
+
+    
+
+    newSlider.label = {
+        text = love.graphics.newText(Font, labelTxt)
     }
 
     sliders[id] = newSlider
@@ -35,27 +50,19 @@ end
 
 
 function sliderM:load()
-    amplituideSlider = sliderM:createSlider("amplitude",200, 1, 100)
+    
+    
+    amplituideSlider = sliderM:createSlider(350, 46,"amplitude",200, 1, 100, "Amplitude")
 
+    frequencySlider = sliderM:createSlider(350, 86, "frequency",200, 0, 20, "Frequency")
 
-    amplituideSlider.x = 350
-    amplituideSlider.y = 30
+    splitSlider = sliderM:createSlider(350, 126, "split",200, -5, 5, "Intensity")
 
-    frequencySlider = sliderM:createSlider("frequency",200, 0, 20)
+    hueSlider = sliderM:createSlider(350, 166, "hue",200, 0, 100, "Hue")
 
+    scaleSlider = sliderM:createSlider(350, 206, "scale",200, 10, 500, "Scale")
 
-    frequencySlider.x = 350
-    frequencySlider.y = 70
-
-    splitSlider = sliderM:createSlider("split",200, -5, 5)
-
-    splitSlider.x = 350
-    splitSlider.y = 110
-
-    hueSlider = sliderM:createSlider("hue",200, 0, 100)
-
-    hueSlider.x = 350
-    hueSlider.y = 150
+    potSlider = sliderM:createSlider(350, 246, "pot",200, 1, 10, "Posterization")
 end
 
 local deltaTimer = 0
@@ -65,12 +72,14 @@ function sliderM:update(dt)
 
     amplitude = amplituideSlider.currValue
     frequency = frequencySlider.currValue
-    split = splitSlider.currValue
+    split = -splitSlider.currValue
     hue = hueSlider.currValue
+    patternDim = scaleSlider.currValue
+    pot = math.floor(potSlider.currValue)
 
     for _,i in pairs(sliders) do
         i.handle.x = i.x + ((i.width / (i.max - i.min))*(i.currValue-i.min)) - i.handle.width/2
-        i.handle.y = i.y-5
+        i.handle.y = i.y- 7.5
 
         x, y = love.mouse.getPosition( )
 
@@ -87,24 +96,32 @@ function sliderM:update(dt)
                 hasADown = false
             end   
         end
+
+        i.handle.rect.x = i.handle.x
+        i.handle.rect.y = i.handle.y
     end
 
 end
 
 function sliderM:draw()
+    local px = 3
     for _,i in pairs(sliders) do
         love.graphics.setColor(1,1,1,1)
-        love.graphics.rectangle("fill",i.x,i.y, i.width,i.height)
+        -- love.graphics.rectangle("fill",i.x,i.y, i.width,i.height)
+
+
+        -- love.graphics.rectangle("fill",i.x+(px),i.y-(px), i.width-(px*2),(px))
+        -- love.graphics.rectangle("fill",i.x+(px),i.y-(px) + i.height + (px), i.width-(px*2),(px))
 
 
 
-        love.graphics.setColor(0.5,0.5,0.5,1)
+        i.handle.rect.colour = {r=0.5,g=0.5,b=0.5}
         if i.hovering == true then
-            love.graphics.setColor(1,0,0,1)
+            i.handle.rect.colour = {r=1,g=0,b=0}
         end
 
 
-        love.graphics.rectangle("fill",i.handle.x,i.handle.y, i.handle.width,i.handle.height, 0, i.height/2)
+        love.graphics.draw(i.label.text,i.x + i.width + 10,i.y - (i.label.text:getHeight() / 2) + (i.height / 2), 0, 1 , 1)
     end
 end
 
