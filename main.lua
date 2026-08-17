@@ -32,6 +32,9 @@ function addPixelRect(x, y, width, height, colour, pX)
 end
 
 function love.load()
+    
+
+
     Font:setFilter("nearest", "nearest")
     love.graphics.setDefaultFilter("nearest", "nearest")
     local bgC = 0.05
@@ -72,6 +75,7 @@ function render()
             renderable:setPixel(x, y, r, g, b, a)
         end
     end
+    
 end
 
 function love.update(dt)
@@ -80,6 +84,7 @@ function love.update(dt)
     sliderM:update(dt)
     textBoxM:update(dt)
     render()
+    
 end
 
 
@@ -108,6 +113,26 @@ function love.draw(dt)
 
     sliderM:draw()
     textBoxM:draw()
+end
+
+function encodeRender(pX, pY)
+
+    local imgRender = love.image.newImageData(pX, pY)
+    for x = 0, imgRender:getWidth()-1 do
+        for y = 0, imgRender:getHeight()-1 do
+            r, g, b, a = pixelLoop(x, y)
+            imgRender:setPixel(x, y, r, g, b, a)
+        end
+    end
+
+    local encode = imgRender:encode("png")
+    
+    local file = io.open("/home/regonold/Test/test.png" , "w")
+
+    file:write(encode:getString())
+
+    file:close()
+    print("success")
 end
 
 function hsv(h, s, v)
