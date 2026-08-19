@@ -2,20 +2,24 @@ local sliderM = {}
 
 local sliders = {}
 
-local amplituideSlider = nil
-local frequencySlider = nil
-local splitSlider = nil
-local hueSlider = nil
-local scaleSlider = nil
-local potSlider = nil
+amplituideSlider = nil
+frequencySlider = nil
+splitSlider = nil
+hueSlider = nil
+scaleSlider = nil
+potSlider = nil
 
 
 
 
 local ON = false
 
-function sliderM:createSlider(x, y, id, length, min, max, labelTxt)
+function sliderM:createSlider(x, y, id, length, min, max, labelTxt, startOverwrite)
     addPixelRect(x, y, length, 10, {r=1,g=1,b=1}, 2)
+    local setVal = max / 2
+    if startOverwrite then
+        setVal = startOverwrite
+    end
     
     local newSlider = {
         x = x,
@@ -24,7 +28,7 @@ function sliderM:createSlider(x, y, id, length, min, max, labelTxt)
         height = 10,
         min = min,
         max = max,
-        currValue = min,
+        currValue = setVal,
         hovering = false,
 
         handle = {
@@ -56,13 +60,13 @@ function sliderM:load()
 
     frequencySlider = sliderM:createSlider(350, 86, "frequency",200, 0, 20, "Frequency")
 
-    splitSlider = sliderM:createSlider(350, 126, "split",200, -5, 5, "Intensity")
+    splitSlider = sliderM:createSlider(350, 126, "split",200, -5, 5, "Intensity", 0)
 
     hueSlider = sliderM:createSlider(350, 166, "hue",200, 0, 100, "Hue")
 
-    scaleSlider = sliderM:createSlider(350, 206, "scale",200, 10, 500, "Scale")
+    scaleSlider = sliderM:createSlider(350, 206, "scale",200, 10, 500, "Scale", 260)
 
-    potSlider = sliderM:createSlider(350, 246, "pot",200, 1, 10, "Posterization")
+    potSlider = sliderM:createSlider(350, 246, "pot",200, 1, 10, "Posterization", 5.5)
 end
 
 local deltaTimer = 0
@@ -72,7 +76,7 @@ function sliderM:update(dt)
 
     amplitude = amplituideSlider.currValue
     frequency = frequencySlider.currValue
-    split = -splitSlider.currValue
+    split = splitSlider.currValue
     hue = hueSlider.currValue
     patternDim = scaleSlider.currValue
     pot = math.floor(potSlider.currValue)

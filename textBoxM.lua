@@ -35,7 +35,9 @@ textBoxM.pXBoxes = {
     x = nil,
     y = nil
 }
+
 function textBoxM:load()
+    print(nfd)
     textBoxM.pXBoxes.x = textBoxM:addTextBox(20, 330, 100, "Image X", {"1","2","3","4","5","6","7","8","9","0"}, 4)
     textBoxM.pXBoxes.y = textBoxM:addTextBox(20, 380, 100, "Image Y", {"1","2","3","4","5","6","7","8","9","0"}, 4)
 end
@@ -88,7 +90,7 @@ function love.keypressed( key, scancode, isrepeat )
     end
 end
 
-function love.mousepressed( x, y, button, istouch, presses )
+function textBoxM:mousepressed( x, y, button, istouch, presses )
     x, y = love.mouse.getPosition( )
     
     for _,i in pairs(textBoxes) do

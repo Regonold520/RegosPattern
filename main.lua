@@ -1,5 +1,7 @@
 sliderM = require("sliderM")
 textBoxM = require("textBoxM")
+buttonM = require("buttonM")
+presetM = require("presetM")
 
 local renderable = nil
 local drawImg = nil
@@ -44,6 +46,8 @@ function love.load()
 
     sliderM:load()
     textBoxM:load()
+    buttonM:load()
+    presetM:load()
 
     render()
 end
@@ -53,9 +57,9 @@ function pixelLoop(x, y)
     local noise = love.math.noise(x / amplitude, y / amplitude)
 
     local wave =
-        ((math.sin(x * 0.12 + noise * frequency) * split) + (math.cos(x * 0.12 + noise * frequency) * 1-split))+
-        ((math.sin(y * 0.12 + noise * frequency) * split) + (math.cos(y * 0.12 + noise * frequency) * 1-split)) +
-        ((math.sin((x+y) * 0.12 + noise * frequency) * split) + (math.cos((x+y) * 0.12 + noise * frequency) * 1-split))
+        ((math.sin(x * 0.12 + noise * frequency) * -split) + (math.cos(x * 0.12 + noise * frequency) * 1-(-split)))+
+        ((math.sin(y * 0.12 + noise * frequency) * -split) + (math.cos(y * 0.12 + noise * frequency) * 1-(-split))) +
+        ((math.sin((x+y) * 0.12 + noise * frequency) * -split) + (math.cos((x+y) * 0.12 + noise * frequency) * 1-(-split)))
 
     local value = (wave+3) / 6
     value = math.max(0, math.min(1, value))
@@ -83,6 +87,8 @@ function love.update(dt)
 
     sliderM:update(dt)
     textBoxM:update(dt)
+    buttonM:update(dt)
+    presetM:update(dt)
     render()
     
 end
@@ -113,9 +119,29 @@ function love.draw(dt)
 
     sliderM:draw()
     textBoxM:draw()
+    buttonM:draw()
+    presetM:draw()
 end
 
+function love.mousepressed( x, y, button, istouch, presses )
+    textBoxM:mousepressed( x, y, button, istouch, presses )
+    buttonM:mousepressed( x, y, button, istouch, presses )
+end
+
+function mkdir(path)
+    if package.config:sub(1, 1) == "\\" then
+        return os.execute('mkdir "' .. path .. '"')
+    else
+        return os.execute('mkdir -p "' .. path .. '"')
+    end
+end
+
+
+
 function encodeRender(pX, pY)
+    local savePath = love.filesystem.getAppdataDirectory().. "/RegosPattern"
+    mkdir(savePath)
+
 
     local imgRender = love.image.newImageData(pX, pY)
     for x = 0, imgRender:getWidth()-1 do
@@ -127,12 +153,13 @@ function encodeRender(pX, pY)
 
     local encode = imgRender:encode("png")
     
-    local file = io.open("/home/regonold/Test/test.png" , "w")
+    local file = io.open(savePath.. "/Render.png" , "w")
+    love.system.openURL(savePath)
 
     file:write(encode:getString())
 
     file:close()
-    print("success")
+    print("successe")
 end
 
 function hsv(h, s, v)
