@@ -1,3 +1,3 @@
 # RegosPattern
 
-To use the program download your OS executable from the github release (MacOS not supported
+To use the program download the Zip from the github release then run the .exe (Windows Only)
